@@ -1,0 +1,55 @@
+self.addbtn.clicked.connect(self.ADD)
+self.extract.clicked.connect(self.CONVERT)
+self.searchbtn.clicked.connect(self.SEARCH)
+
+	def ADD(self):
+
+	db=sqlite3.connect("patient_record.db")
+	cursor=db.cursor()
+	firstname=self.fname.text()
+	lastname=self.lname.text()
+	gender=gender.lname.text()
+	age=str(self.age.value())
+	blood=self.bgroup.text()
+	contact=self.cno.text()
+	mail=self.mail.text()
+	date=str(self.date.value())
+	disease=self.disease.text()
+	doctor=self.doctor.text()
+
+	row=(firstname,lastname,gender,age,blood,contact,mail,date,disease,doctor)
+
+
+	command = ''' INSERT INTO details (First Name,Last Name,Gender,Age,Blood Group,Contact No,Mail,Date,Disease/Symptoms,Doctor) VALUES(?,?,?,?,?,?,?,?,?,?) '''
+
+	cursor.execute(command,row)
+
+	db.commit()
+
+
+	def CONVERT(self):
+
+        filePath='Data.xlsx'
+        conn=sqlite3.connect('parts.db')
+        writer=pd.ExcelWriter(filePath,engine='xlsxwriter')
+        df=pd.read_sql("select * from parts_table",conn)
+        df.to_excel(writer,sheet_name="sheet1",index=False)
+        writer.save()
+
+	def SEARCH():
+		db=sqlite3.connect("patient_record.db")
+		cursor=db.cursor()
+
+		#checking current item selected in the combo box
+		field = self.select.currentText()
+		val=self.value.text()
+		command=''' SELECT * from details WHERE ? = ? '''
+		row=(field,val)
+		result=cursor.execute(command,row)
+		self.table.RowCount(0)
+	
+		for row_number,row_data in enumerate(result):
+			self.table.insertRow(row_number)
+			for column_number, data in enumerate(row_data):
+				self.table.setItem(row_number,column_number,QTableWidgetItem(str(data)))
+ 
